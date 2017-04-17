@@ -14,12 +14,12 @@
 namespace flags {
 
 
-constexpr struct empty_t {
+class empty_t {
   constexpr empty_t() noexcept {}
-} empty;
+};
 
 
-template <class E> struct flags {
+template <class E> class flags {
 public:
   static_assert(is_flags<E>::value,
                 "flags::flags is disallowed for this type; "
@@ -40,7 +40,7 @@ public:
   using difference_type = typename iterator::difference_type;
 
 
-  constexpr static std::size_t bit_size() { return sizeof(impl_type) * 8; }
+  static constexpr std::size_t bit_size() { return sizeof(impl_type)* 8; }
 
 
 private:
@@ -93,7 +93,7 @@ public:
   { insert(b, e); }
 
 
-  constexpr explicit operator bool() const noexcept { return val_; }
+  constexpr explicit operator bool() const noexcept { return (val_ > 0); }
 
   constexpr bool operator!() const noexcept { return !val_; }
 
@@ -140,15 +140,15 @@ public:
   }
 
   friend constexpr flags operator|(flags f1, flags f2) noexcept {
-    return flags{f1.val_ | f2.val_};
+    return flags{static_cast<impl_type>(f1.val_ | f2.val_)};
   }
 
   friend constexpr flags operator&(flags f1, flags f2) noexcept {
-    return flags{f1.val_ & f2.val_};
+    return flags{static_cast<impl_type>(f1.val_ & f2.val_)};
   }
 
   friend  constexpr flags operator^(flags f1, flags f2) noexcept {
-    return flags{f1.val_ ^ f2.val_};
+    return flags{static_cast<impl_type>(f1.val_ ^ f2.val_)};
   }
 
 
@@ -164,11 +164,11 @@ public:
   }
 
 
-  constexpr explicit operator std::bitset<bit_size()>() const noexcept {
+  constexpr explicit operator std::bitset<sizeof(impl_type) * 8>() const noexcept {
     return to_bitset();
   }
 
-  constexpr std::bitset<bit_size()> to_bitset() const noexcept {
+  constexpr std::bitset<sizeof(impl_type) * 8> to_bitset() const noexcept {
     return {val_};
   }
 
